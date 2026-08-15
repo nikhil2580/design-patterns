@@ -54,6 +54,14 @@ h1,h2,h3,h4{font-family:var(--display);font-weight:700;letter-spacing:-.02em;mar
 /* ---------- shell ---------- */
 .shell{max-width:var(--maxw);margin:0 auto;padding:0 2rem 5rem;display:grid;
   grid-template-columns:216px minmax(0,1fr);gap:3rem;align-items:start}
+/* Grid and flex children default to min-width:auto, so a wide diagram, code
+   block or table would push the column wider than the screen instead of
+   scrolling inside its own box. This is what stops the page overflowing. */
+.shell>main,.shell>main *{min-width:0}
+.diagram,.tbl-wrap,pre.code{max-width:100%}
+.mast-grid>*,.index-grid>*,.legend-inner>*,.key>*{min-width:0}
+.tile b{overflow-wrap:break-word;hyphens:auto}
+html,body{overflow-x:hidden}
 .toc{position:sticky;top:1.5rem;font-family:var(--mono);font-size:.74rem;
   padding:3.5rem .6rem 1.2rem 0;
   max-height:calc(100vh - 3rem);overflow-y:auto;overscroll-behavior:contain;
@@ -202,16 +210,6 @@ footer{max-width:var(--maxw);margin:0 auto;padding:2rem 2rem 4rem;border-top:1px
   .mast-grid{grid-template-columns:1fr;align-items:start;gap:1.5rem}
   .lede{max-width:64ch}
 }
-/* One column as soon as two would be cramped. Below this width the paired
-   cells stack, so each block of text keeps a readable line length. */
-@media (max-width:860px){
-  .plate{grid-template-columns:1fr}
-  .cell{padding:1rem 0 1.1rem}
-  .cell+.cell{padding-left:0;border-left:0}
-  .ref dl{grid-template-columns:1fr;gap:.15rem}
-  .ref dd{margin-bottom:.75rem}
-  .key{grid-template-columns:auto 1fr}
-}
 
 @media (max-width:1080px){
   .shell{grid-template-columns:1fr;gap:0}
@@ -225,6 +223,22 @@ footer{max-width:var(--maxw);margin:0 auto;padding:2rem 2rem 4rem;border-top:1px
     color:var(--ink);border-radius:2px}
   .hint{display:inline;font-size:.6rem;letter-spacing:.08em;color:var(--ink3);
     text-transform:none}
+}
+
+/* Below this width the two-column plates get too narrow to read - stack
+   everything into one column and drop the dividing rules. */
+@media (max-width:900px){
+  .plate{grid-template-columns:1fr}
+  .cell{padding:1rem 0 1.1rem}
+  .cell+.cell{padding-left:0;border-left:0;border-top:0;padding-top:0}
+  .plate+.plate .cell:first-child{padding-top:1rem}
+  .ref dl{grid-template-columns:1fr;gap:.15rem}
+  .ref dt{padding-top:.5rem}
+  .ref dd{margin-bottom:.5rem}
+  .key{grid-template-columns:1fr;gap:.35rem}
+  .key .arw{margin-top:.55rem}
+  .key .note{grid-template-columns:1fr;gap:.1rem}
+  .legend-inner{padding:1.3rem 1.2rem}
 }
 @media (max-width:640px){
   body{font-size:16px}
@@ -240,8 +254,6 @@ footer{max-width:var(--maxw);margin:0 auto;padding:2rem 2rem 4rem;border-top:1px
   .cat-head{padding:2.4rem 0 1.1rem;margin-bottom:1.4rem}
   .pattern{padding:1.25rem 1rem 1.4rem;margin-bottom:1.2rem}
   .intent{font-size:1.04rem;margin-bottom:1.1rem}
-  .cell+.cell{padding-left:0;border-left:0}
-  .cell{padding-right:0;padding-top:.9rem}
   .cell p,.cell ul{font-size:.94rem}
 
   .diagram{padding:.9rem .55rem;text-align:left}
@@ -250,11 +262,8 @@ footer{max-width:var(--maxw);margin:0 auto;padding:2rem 2rem 4rem;border-top:1px
   .ref{padding:1.2rem 1.1rem}
   .ref dl{grid-template-columns:1fr;gap:.15rem}
   .ref dd{margin-bottom:.7rem}
-  .tbl{min-width:520px}
+  .tbl-wrap .tbl{min-width:520px}   /* beats the blanket min-width:0 above */
   .tbl-wrap{-webkit-overflow-scrolling:touch}
-  .key{grid-template-columns:1fr;gap:.3rem}
-  .key .arw{margin-top:.5rem}
-  .key .note{grid-template-columns:1fr;gap:.1rem}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
