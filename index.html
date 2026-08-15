@@ -61,7 +61,7 @@ h1,h2,h3,h4{font-family:var(--display);font-weight:700;letter-spacing:-.02em;mar
 .diagram,.tbl-wrap,pre.code{max-width:100%}
 .mast-grid>*,.index-grid>*,.legend-inner>*,.key>*{min-width:0}
 .tile b{overflow-wrap:break-word;hyphens:auto}
-html,body{overflow-x:hidden}
+body{overflow-x:clip}
 .toc{position:sticky;top:1.5rem;font-family:var(--mono);font-size:.74rem;
   padding:3.5rem .6rem 1.2rem 0;
   max-height:calc(100vh - 3rem);overflow-y:auto;overscroll-behavior:contain;
@@ -1554,6 +1554,18 @@ const targets = Array.prototype.slice
   .call(document.querySelectorAll('.pattern[id], .cat-head[id]'))
   .filter(function (el) { return links.has(el.id); });
 
+const tocEl = document.querySelector('.toc');
+
+// Nudge only the sidebar's own scroll position. Never call scrollIntoView here:
+// it also scrolls the window, which makes the page jump while you scroll.
+function keepLinkVisible(link) {
+  if (!tocEl || tocEl.scrollHeight <= tocEl.clientHeight) return;
+  const l = link.getBoundingClientRect();
+  const t = tocEl.getBoundingClientRect();
+  if (l.top < t.top + 4)          tocEl.scrollTop -= (t.top - l.top) + 12;
+  else if (l.bottom > t.bottom - 4) tocEl.scrollTop += (l.bottom - t.bottom) + 12;
+}
+
 let active = null;
 function updateSpy() {
   if (!targets.length) return;
@@ -1572,7 +1584,7 @@ function updateSpy() {
   const link = links.get(current.id);
   if (link) {
     link.classList.add('on');
-    link.scrollIntoView({block: 'nearest'});   // keep it visible in the sidebar
+    keepLinkVisible(link);
   }
   if (jump && jump.value !== '#' + current.id) jump.value = '#' + current.id;
 }
